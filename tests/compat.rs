@@ -325,7 +325,7 @@ fn gnm500_400_is_connected() {
 #[test]
 fn empty_graph_is_connected_fails() {
     // create an empty file (all comments)
-    let dir = tempfile::tempdir_in("/Volumes/KIOXIA/tmp").unwrap();
+    let dir = tempfile::tempdir().unwrap();
     let p = dir.path().join("empty.el");
     std::fs::write(&p, "# no edges\n").unwrap();
     let out = Command::new(bin())
@@ -337,7 +337,7 @@ fn empty_graph_is_connected_fails() {
 
 #[test]
 fn empty_graph_largest_fails() {
-    let dir = tempfile::tempdir_in("/Volumes/KIOXIA/tmp").unwrap();
+    let dir = tempfile::tempdir().unwrap();
     let p = dir.path().join("empty.el");
     std::fs::write(&p, "# no edges\n").unwrap();
     run_expect_fail("largest", p.to_str().unwrap());
@@ -346,7 +346,7 @@ fn empty_graph_largest_fails() {
 // ── count on empty graph returns 0 (no components) ──────────────────────────
 #[test]
 fn empty_graph_count_zero() {
-    let dir = tempfile::tempdir_in("/Volumes/KIOXIA/tmp").unwrap();
+    let dir = tempfile::tempdir().unwrap();
     let p = dir.path().join("empty.el");
     std::fs::write(&p, "# no edges\n").unwrap();
     let out = Command::new(bin())
