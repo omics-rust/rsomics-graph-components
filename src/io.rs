@@ -25,9 +25,10 @@ impl Graph {
 /// - Lines starting with `#` are comments (ignored).
 /// - Blank lines are ignored.
 /// - Each data line needs at least two whitespace-separated tokens; extras ignored.
-/// - Self-loops (`u u`) are dropped — they don't affect connected components.
+/// - Self-loops (`u u`) register the node but add no edge — a self-loop-only
+///   node is its own singleton component, matching networkx.
 /// - Duplicate edges collapse to a simple graph.
-/// - Only nodes that appear as endpoints of non-self-loop edges exist in the graph.
+/// - Only nodes that appear as endpoints of edges (self-loops included) exist.
 pub fn read_edgelist(path: Option<&Path>) -> Result<Graph> {
     let reader: Box<dyn BufRead> = match path {
         None => Box::new(BufReader::new(std::io::stdin())),
@@ -58,6 +59,7 @@ pub fn read_edgelist(path: Option<&Path>) -> Result<Graph> {
         })?;
 
         if u_str == v_str {
+            intern(&mut labels, &mut index, u_str);
             continue;
         }
 

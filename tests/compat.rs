@@ -240,6 +240,120 @@ fn selfloop_dup_is_connected() {
     assert_eq!(run("is-connected", "selfloop_dup.el"), "true");
 }
 
+// ── selfloop_singleton ──────────────────────────────────────────────────────
+// networkx (read_edgelist): nodes=3 (1,2,3), edges 1-2 + self-loop 3-3.
+// A self-loop-only node is its own singleton → count=2, sizes=[2,1].
+
+#[test]
+fn selfloop_singleton_count() {
+    assert_eq!(run("count", "selfloop_singleton.el"), "2");
+}
+
+#[test]
+fn selfloop_singleton_sizes() {
+    assert_eq!(
+        sizes_from_output(&run("sizes", "selfloop_singleton.el")),
+        vec![2, 1]
+    );
+}
+
+#[test]
+fn selfloop_singleton_largest() {
+    let out = run("largest", "selfloop_singleton.el");
+    let mut parts = out.splitn(2, '\t');
+    let sz: usize = parts.next().unwrap().parse().unwrap();
+    let frac: f64 = parts.next().unwrap().parse().unwrap();
+    assert_eq!(sz, 2);
+    assert_eq!(frac, 2.0_f64 / 3.0_f64);
+}
+
+#[test]
+fn selfloop_singleton_is_connected() {
+    assert_eq!(run("is-connected", "selfloop_singleton.el"), "false");
+}
+
+#[test]
+fn selfloop_singleton_membership() {
+    let m = membership_from_output(&run("membership", "selfloop_singleton.el"));
+    let map: std::collections::HashMap<String, usize> = m.into_iter().collect();
+    assert_eq!(map.len(), 3);
+    assert_eq!(map["1"], map["2"], "1 and 2 share a component");
+    assert_ne!(map["1"], map["3"], "3 is its own singleton");
+}
+
+// ── selfloop_all_isolated ───────────────────────────────────────────────────
+// networkx: nodes=2 (5,6), both self-loop-only → count=2, sizes=[1,1].
+// Regression guard for the drop-to-empty bug (was: 0 components).
+
+#[test]
+fn selfloop_all_isolated_count() {
+    assert_eq!(run("count", "selfloop_all_isolated.el"), "2");
+}
+
+#[test]
+fn selfloop_all_isolated_sizes() {
+    assert_eq!(
+        sizes_from_output(&run("sizes", "selfloop_all_isolated.el")),
+        vec![1, 1]
+    );
+}
+
+#[test]
+fn selfloop_all_isolated_largest() {
+    let out = run("largest", "selfloop_all_isolated.el");
+    let mut parts = out.splitn(2, '\t');
+    let sz: usize = parts.next().unwrap().parse().unwrap();
+    let frac: f64 = parts.next().unwrap().parse().unwrap();
+    assert_eq!(sz, 1);
+    assert_eq!(frac, 0.5_f64);
+}
+
+#[test]
+fn selfloop_all_isolated_is_connected() {
+    assert_eq!(run("is-connected", "selfloop_all_isolated.el"), "false");
+}
+
+// ── selfloop_mixed ──────────────────────────────────────────────────────────
+// networkx: nodes=5 (a,b,c,d,e), a-b-d-a triangle + self-loop-only c and e.
+// count=3, sizes=[3,1,1]. Verifies singleton nodes interleaved among real edges.
+
+#[test]
+fn selfloop_mixed_count() {
+    assert_eq!(run("count", "selfloop_mixed.el"), "3");
+}
+
+#[test]
+fn selfloop_mixed_sizes() {
+    assert_eq!(
+        sizes_from_output(&run("sizes", "selfloop_mixed.el")),
+        vec![3, 1, 1]
+    );
+}
+
+#[test]
+fn selfloop_mixed_largest() {
+    let out = run("largest", "selfloop_mixed.el");
+    let mut parts = out.splitn(2, '\t');
+    let sz: usize = parts.next().unwrap().parse().unwrap();
+    let frac: f64 = parts.next().unwrap().parse().unwrap();
+    assert_eq!(sz, 3);
+    assert_eq!(frac, 3.0_f64 / 5.0_f64);
+}
+
+#[test]
+fn selfloop_mixed_membership() {
+    let m = membership_from_output(&run("membership", "selfloop_mixed.el"));
+    let map: std::collections::HashMap<String, usize> = m.into_iter().collect();
+    assert_eq!(map.len(), 5);
+    // triangle a,b,d share one component (canonical id 0: largest, min-node first)
+    assert_eq!(map["a"], 0);
+    assert_eq!(map["b"], 0);
+    assert_eq!(map["d"], 0);
+    // singletons c (inserted before e) and e get distinct ids, ordered by node id
+    assert_eq!(map["c"], 1);
+    assert_eq!(map["e"], 2);
+}
+
 // ── comments ────────────────────────────────────────────────────────────────
 // networkx: nodes=6 (X,Y,Z,A,B,C), count=2, sizes=[3,3]
 

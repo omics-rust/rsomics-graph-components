@@ -33,8 +33,9 @@ pub enum Metric {
 ///
 /// Reads an edge list (one `u v` per line, whitespace-separated) from a file
 /// argument or stdin (`-`). Comment lines starting with `#` and blank lines
-/// are ignored. Self-loops are dropped; duplicate edges collapse to a simple
-/// graph. Only nodes appearing as endpoints exist in the graph.
+/// are ignored. A self-loop registers its node as a singleton but adds no
+/// edge; duplicate edges collapse to a simple graph. Only nodes appearing as
+/// endpoints exist in the graph.
 ///
 /// Canonical component IDs (for `--metric membership`) are assigned by sorting
 /// components: largest first, then by smallest node-label ascending within ties.
