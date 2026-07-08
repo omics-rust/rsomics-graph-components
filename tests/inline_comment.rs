@@ -9,7 +9,7 @@ use rsomics_graph_components::io::read_edgelist;
 use tempfile::NamedTempFile;
 
 fn components_of(text: &str) -> (Vec<usize>, Vec<Vec<String>>) {
-    let mut f = NamedTempFile::new_in("/Volumes/KIOXIA/tmp").unwrap();
+    let mut f = NamedTempFile::new().unwrap();
     f.write_all(text.as_bytes()).unwrap();
     f.flush().unwrap();
     let g = read_edgelist(Some(f.path())).unwrap();
