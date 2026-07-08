@@ -1,6 +1,6 @@
 [package]
 name = "rsomics-graph-components"
-version = "0.1.1"
+version = "0.1.2"
 description = "Connected-components queries for undirected graphs — value-exact networkx equivalent (count, sizes, largest, is-connected, membership)"
 edition = "2024"
 rust-version = "1.91"

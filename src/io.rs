@@ -22,8 +22,8 @@ impl Graph {
 /// Parse an undirected edge list.
 ///
 /// Matches `nx.read_edgelist` conventions for component queries:
-/// - Lines starting with `#` are comments (ignored).
-/// - Blank lines are ignored.
+/// - A `#` starts a comment anywhere in a line; everything from it is dropped before tokenising.
+/// - Blank lines (and comment-only lines) are ignored.
 /// - Each data line needs at least two whitespace-separated tokens; extras ignored.
 /// - Self-loops (`u u`) register the node but add no edge — a self-loop-only
 ///   node is its own singleton component, matching networkx.
@@ -48,8 +48,9 @@ pub fn read_edgelist(path: Option<&Path>) -> Result<Graph> {
     for (lineno, line) in reader.lines().enumerate() {
         let lineno = lineno + 1;
         let line = line.map_err(RsomicsError::Io)?;
-        let t = line.trim();
-        if t.is_empty() || t.starts_with('#') {
+        // nx.parse_edgelist strips a '#' comment anywhere in the line before tokenising.
+        let t = line.split('#').next().unwrap_or("").trim();
+        if t.is_empty() {
             continue;
         }
         let mut tokens = t.split_ascii_whitespace();
